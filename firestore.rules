@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 1. Leads Collection
+    match /leads/{leadId} {
+      allow read: if isSignedIn();
+      allow create: if isValidId(leadId) &&
+        incoming().id is string && incoming().id.size() <= 128 &&
+        incoming().referenceCode is string && incoming().referenceCode.size() <= 64 &&
+        incoming().status in ['nuevo', 'en_revision', 'contactado', 'visita_fijada'] &&
+        incoming().createdAt is string && incoming().createdAt.size() <= 64;
+      allow update: if isSignedIn() && isValidId(leadId);
+      allow delete: if isSignedIn();
+    }
+
+    // 2. Technical Visits Collection
+    match /visits/{visitId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(visitId) &&
+        incoming().clientName is string && incoming().clientName.size() <= 128 &&
+        incoming().visitDate is string && incoming().visitDate.size() <= 64;
+      allow update: if isSignedIn() && isValidId(visitId);
+      allow delete: if isSignedIn();
+    }
+
+    // 3. Workspace Exports Collection
+    match /exports/{exportId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(exportId) &&
+        incoming().type in ['sheets', 'slides', 'calendar'] &&
+        incoming().title is string && incoming().title.size() <= 200 &&
+        incoming().fileUrl is string && incoming().fileUrl.size() <= 500;
+      allow update: if isSignedIn() && isValidId(exportId);
+      allow delete: if isSignedIn();
+    }
+
+    // 4. User Profiles Collection
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create, update: if isOwner(userId) && isValidId(userId) &&
+        incoming().uid == request.auth.uid &&
+        incoming().email is string && incoming().email.size() <= 128;
+      allow delete: if isOwner(userId);
+    }
+  }
+}

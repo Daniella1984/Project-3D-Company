@@ -1,0 +1,6 @@
+{
+  "name": "PROJECT 3D - Construcción de Viviendas Adosadas y Reformas",
+  "description": "Ecosistema digital y estimador 3D para construcción de viviendas adosadas y reformas integrales con sede en Torrijos (Toledo, España).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

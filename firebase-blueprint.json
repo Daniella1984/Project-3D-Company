@@ -1,0 +1,184 @@
+{
+  "entities": {
+    "LeadRecord": {
+      "title": "LeadRecord",
+      "description": "Expediente de cliente para vivienda adosada o reforma integral registrado en PROJECT 3D",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Identificador único del lead"
+        },
+        "referenceCode": {
+          "type": "string",
+          "description": "Código de referencia del proyecto (ej: P3D-2026-XXXX)"
+        },
+        "client": {
+          "type": "object",
+          "description": "Datos de contacto y consentimiento del cliente"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Parámetros volumétricos y calidades de la vivienda"
+        },
+        "estimation": {
+          "type": "object",
+          "description": "Cálculo económico con PEM, margen de contingencia 15% e IVA"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Fecha y hora de registro ISO"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["nuevo", "en_revision", "contactado", "visita_fijada"],
+          "description": "Estado en el pipeline comercial de Torrijos"
+        },
+        "commercialAssignee": {
+          "type": "string",
+          "description": "Equipo comercial o aparejador asignado"
+        },
+        "userId": {
+          "type": "string",
+          "description": "ID del usuario de Firebase Auth si está autenticado"
+        }
+      },
+      "required": ["id", "referenceCode", "createdAt", "status"]
+    },
+    "TechnicalVisit": {
+      "title": "TechnicalVisit",
+      "description": "Cita técnica o inspección de obra coordinada con Google Calendar",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Identificador único de la visita"
+        },
+        "leadId": {
+          "type": "string",
+          "description": "ID del lead asociado"
+        },
+        "referenceCode": {
+          "type": "string",
+          "description": "Código de referencia del proyecto"
+        },
+        "clientName": {
+          "type": "string",
+          "description": "Nombre completo del cliente"
+        },
+        "clientPhone": {
+          "type": "string",
+          "description": "Teléfono de contacto"
+        },
+        "visitDate": {
+          "type": "string",
+          "description": "Fecha y hora programada"
+        },
+        "location": {
+          "type": "string",
+          "description": "Dirección o parcela en Torrijos/Toledo"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Observaciones para el arquitecto técnico"
+        },
+        "calendarEventId": {
+          "type": "string",
+          "description": "Identificador del evento en Google Calendar"
+        },
+        "calendarEventLink": {
+          "type": "string",
+          "description": "Enlace directo al evento en Google Calendar"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Fecha de creación ISO"
+        }
+      },
+      "required": ["id", "leadId", "clientName", "visitDate"]
+    },
+    "WorkspaceExport": {
+      "title": "WorkspaceExport",
+      "description": "Registro de exportaciones a Google Workspace (Sheets, Slides, Calendar)",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Identificador único del registro"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["sheets", "slides", "calendar"],
+          "description": "Tipo de exportación a Google Workspace"
+        },
+        "title": {
+          "type": "string",
+          "description": "Título del documento o evento creado"
+        },
+        "fileId": {
+          "type": "string",
+          "description": "ID del archivo en Google Drive o evento de Calendar"
+        },
+        "fileUrl": {
+          "type": "string",
+          "description": "Enlace público/privado de acceso directo"
+        },
+        "leadReference": {
+          "type": "string",
+          "description": "Código de referencia del lead exportado"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Fecha y hora de la exportación ISO"
+        }
+      },
+      "required": ["id", "type", "title", "fileUrl", "createdAt"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Perfil de usuario registrado en la plataforma PROJECT 3D",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth UID"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Nombre de usuario"
+        },
+        "email": {
+          "type": "string",
+          "description": "Correo electrónico verificado"
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "URL del avatar"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Fecha de registro ISO"
+        }
+      },
+      "required": ["uid", "email"]
+    }
+  },
+  "firestore": {
+    "/leads/{leadId}": {
+      "schema": "LeadRecord",
+      "description": "Colección de leads y estimaciones de obra de PROJECT 3D"
+    },
+    "/visits/{visitId}": {
+      "schema": "TechnicalVisit",
+      "description": "Colección de visitas técnicas coordinadas con Google Calendar"
+    },
+    "/exports/{exportId}": {
+      "schema": "WorkspaceExport",
+      "description": "Historial de exportaciones a Google Sheets y Google Slides"
+    },
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Perfiles de usuarios autenticados"
+    }
+  }
+}
